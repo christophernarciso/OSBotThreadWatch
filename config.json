@@ -1,0 +1,24 @@
+{
+  "_comment0": "Please edit name, botname, start, timeout, webook",
+  "name": "Chris",
+  "botname": "CWS",
+  "about": "Decided to create this with inspiration from Malcolm@OSBot.org python src.",
+  "start": "Starting comment watcher support",
+  "timeout": 120000,
+  "version": 1,
+  "webhook": "WEBHOOK_URL_HERE",
+  "_comment1": "threads... The list of threads to use",
+  "threads": [
+    "https://osbot.org/forum/topic/157064-excellent-vorkath/",
+    "https://osbot.org/forum/topic/104463-excellent-dragons/",
+    "https://osbot.org/forum/topic/125680-excellent-agility/",
+    "https://osbot.org/forum/topic/155717-legendary-lava-dragons/"
+  ],
+  "_comment2": "cache key:value... The key should be the thread title. The value will default to today at 10am ish EST unless you change it by new Date().getTime() in your browser console",
+  "cache": {
+    "Excellent Vorkath": 1588170081901,
+    "Excellent Agility": 1588170081901,
+    "Excellent Dragons": 1588170081901,
+    "Legendary Lava Dragons": 1588170081901
+  }
+}

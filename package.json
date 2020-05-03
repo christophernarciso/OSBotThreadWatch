@@ -1,0 +1,26 @@
+{
+  "name": "ThreadWatcher",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "node bot.js"
+  },
+  "keywords": [
+    "Discord bot",
+    "ThreadWatcher"
+  ],
+  "author": "Christopher",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "cloudscraper": "^4.6.0",
+    "dotenv": "^8.2.0",
+    "install": "^0.13.0",
+    "jssoup": "0.0.11",
+    "npm": "^6.14.4",
+    "request": "^2.88.2",
+    "webhook-discord": "^3.7.3"
+  }
+}
