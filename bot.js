@@ -1,11 +1,38 @@
 const configData = require('./config');
 const webhook = require('webhook-discord');
-const cloudscraper = require('cloudscraper');
+const hooman = require('hooman');
 const JSSoup = require('jssoup').default;
+const winston = require('winston');
 const Hook = new webhook.Webhook(configData.webhook);
+const Hook2 = new webhook.Webhook(configData.webhook2);
 const ENDING = 'page/5000/';
 const THREADS = configData.threads;
-const DATE_CACHE = configData.cache;
+const CACHE = configData.cache;
+const ICONS = configData.icons;
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    defaultMeta: { service: 'user-service' },
+    transports: [
+        //
+        // - Write all logs with level `error` and below to `error.log`
+        // - Write all logs with level `info` and below to `combined.log`
+        //
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' }),
+    ],
+});
+
+//
+// If we're not in production then log to the `console` with the format:
+// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+//
+if (process.env.NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple(),
+    }));
+}
 
 const getRandomColor = () => {
     return '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -13,66 +40,67 @@ const getRandomColor = () => {
 
 const timeout = millis => new Promise(resolve => setTimeout(resolve, millis));
 
-const sendMessage = (script, thread, date, author, message) => {
-    if (date === null) {
+const sendCommentMessage = (script, thread, date, author, message) => {
+    if (author === configData.name) {
+        const messageBuilder = new webhook.MessageBuilder()
+            .setName('Updates')
+            .setTitle(script)
+            .setAvatar('https://i.imgur.com/krPavyD.gif')
+            .setColor(getRandomColor())
+            .setThumbnail(ICONS[script])
+            .addField('Update Information', message)
+            .addField('Thread Link', thread)
+            .addField('Date', date);
+        Hook2.send(messageBuilder);
+    } else {
         const messageBuilder = new webhook.MessageBuilder()
             .setName(configData.botname)
+            .setTitle(script)
             .setColor(getRandomColor())
-            .addField('Date', new Date().toString())
+            .addField('Comment', message)
+            .addField('Thread Link', thread)
             .addField('Author', author)
-            .addField('Message', message);
-        return Hook.send(messageBuilder);
+            .addField('Date', date);
+        Hook.send(messageBuilder);
     }
-
-    const messageBuilder = new webhook.MessageBuilder()
-        .setName(configData.botname)
-        .setColor(getRandomColor())
-        .addField('Topic', script)
-        .addField('Thread Link', thread)
-        .addField('Author', author)
-        .addField('Comment', message)
-        .addField('Date', new Date(date).toString());
-
-    Hook.send(messageBuilder);
 };
 
 (async function main() {
-    sendMessage(null, null, null, configData.name, configData.start.concat(` version: ${configData.version}`, ` timeout(ms): ${configData.timeout}`));
+    logger.info('Starting comment_watcher_bot application. ' + new Date().toString());
     while (true) {
         for (idx in THREADS) {
             const url = THREADS[idx].concat(ENDING);
-            const source = await cloudscraper.get(url);
+            const source = await hooman.get(url);
 
             if (source) {
-                const soup = new JSSoup(source);
-                const t = soup.find('script', {
-                    'type': 'application/ld+json'
-                }).text;
-                const json = JSON.parse(t);
+                const soup = new JSSoup(source.body);
+                const script = soup.find('script', {'type': 'application/ld+json'}).text;
+                const json = JSON.parse(script);
                 const scriptName = json['name'];
                 const comments = json['comment'];
 
-                console.log(`Loading comments for ${scriptName}`);
+                logger.info(`Loading comments for ${scriptName}`);
 
                 comments.forEach(function (data) {
-                    const date = new Date(data['dateCreated']).getTime();
+                    const date = new Date(data['dateCreated']).toString();
                     const author = data['author'].name;
                     const thread = data['url'];
                     const message = data['text'];
+                    const commentCount = thread.substring(thread.indexOf('comment') + 8, thread.length);
 
-                    if (author === configData.name)
+                    if (author === configData.name && !message.includes('UPDATE'))
                         return;
 
-                    if (date > DATE_CACHE[scriptName]) {
-                        console.log(`Found a recent comment by user ${author} on topic [${scriptName}][${date}].`);
-                        DATE_CACHE[scriptName] = date;
-                        sendMessage(scriptName, thread, date, author, message);
+                    if (commentCount > CACHE[scriptName]) {
+                        logger.info(`Found a recent comment by user ${author} on topic [${scriptName}][${date}].`);
+                        CACHE[scriptName] = commentCount;
+                        sendCommentMessage(scriptName, thread, date, author, message);
                     }
                 });
             }
         }
         // Delay next thread check
-        console.log('Waiting a bit for next cycle');
+        logger.info('Waiting a bit for next cycle');
         await timeout(configData.timeout);
     }
 })();
