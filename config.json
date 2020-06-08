@@ -1,24 +1,34 @@
 {
-  "_comment0": "Please edit name, botname, start, timeout, webook",
+  "_comment0": "Please edit name (OSBot username), start, timeout, webook(Comment webhook), webhook2(Update hook)",
   "name": "Chris",
-  "botname": "CWS",
+  "botname": "Comments",
   "about": "Decided to create this with inspiration from Malcolm@OSBot.org python src.",
-  "start": "Starting comment watcher support",
-  "timeout": 120000,
-  "version": 1,
-  "webhook": "WEBHOOK_URL_HERE",
+  "timeout": 1800000,
+  "version": 2,
+  "webhook": "Webhook url for thread comments",
+  "webhook2": "Webhook url for thread script updates",
   "_comment1": "threads... The list of threads to use",
   "threads": [
     "https://osbot.org/forum/topic/157064-excellent-vorkath/",
     "https://osbot.org/forum/topic/104463-excellent-dragons/",
     "https://osbot.org/forum/topic/125680-excellent-agility/",
-    "https://osbot.org/forum/topic/155717-legendary-lava-dragons/"
+    "https://osbot.org/forum/topic/155717-legendary-lava-dragons/",
+    "https://osbot.org/forum/topic/149870-excellent-fungus/"
   ],
-  "_comment2": "cache key:value... The key should be the thread title. The value will default to today at 10am ish EST unless you change it by new Date().getTime() in your browser console",
+  "_comment2": "cache key:value... The key should be the thread title. The value will default to 1 unless you change it by grabbing the recent comment number from your last page of each thread",
   "cache": {
-    "Excellent Vorkath": 1588170081901,
-    "Excellent Agility": 1588170081901,
-    "Excellent Dragons": 1588170081901,
-    "Legendary Lava Dragons": 1588170081901
+    "Excellent Vorkath": 1,
+    "Excellent Agility": 1,
+    "Excellent Dragons": 1,
+    "Legendary Lava Dragons": 1,
+    "Excellent Fungus": 1
+  },
+  "_comment3": "icons key:value... The key will be the thread title. The value is the URL to your script icon",
+  "icons": {
+    "Excellent Vorkath": "https://i.imgur.com/IwoOrZA.png",
+    "Excellent Dragons": "https://i.imgur.com/56zP7PG.png",
+    "Excellent Agility": "https://i.imgur.com/d0cqvt7.png",
+    "Excellent Fungus": "https://i.imgur.com/lPOQhid.png",
+    "Legendary Lava Dragons": "https://i.imgur.com/dTE8rTp.png"
   }
 }
