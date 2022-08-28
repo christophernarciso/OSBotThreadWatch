@@ -3,8 +3,8 @@ const webhook = require('webhook-discord');
 const hooman = require('hooman');
 const JSSoup = require('jssoup').default;
 const winston = require('winston');
-const Hook = new webhook.Webhook(configData.webhook);
-const Hook2 = new webhook.Webhook(configData.webhook2);
+const CommentHook = new webhook.Webhook(configData.webhook);
+const UpdateHook = new webhook.Webhook(configData.webhook2);
 const ENDING = 'page/5000/';
 const THREADS = configData.threads;
 const CACHE = configData.cache;
@@ -41,6 +41,10 @@ const getRandomColor = () => {
 const timeout = millis => new Promise(resolve => setTimeout(resolve, millis));
 
 const sendCommentMessage = (script, thread, date, author, message) => {
+    // Discords validations on fields.
+    if (message.length > 1024)
+        return;
+
     if (author === configData.name) {
         const messageBuilder = new webhook.MessageBuilder()
             .setName('Updates')
@@ -51,7 +55,7 @@ const sendCommentMessage = (script, thread, date, author, message) => {
             .addField('Update Information', message)
             .addField('Thread Link', thread)
             .addField('Date', date);
-        Hook2.send(messageBuilder);
+        UpdateHook.send(messageBuilder);
     } else {
         const messageBuilder = new webhook.MessageBuilder()
             .setName(configData.botname)
@@ -61,7 +65,7 @@ const sendCommentMessage = (script, thread, date, author, message) => {
             .addField('Thread Link', thread)
             .addField('Author', author)
             .addField('Date', date);
-        Hook.send(messageBuilder);
+        CommentHook.send(messageBuilder);
     }
 };
 
